@@ -1,0 +1,75 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using ApplicationsRiley.Models
+@using ApplicationsRiley.Data
+@inject DBServices db
+
+<div style="flex-direction: column" class="d-flex">
+    <h1 class="align-self-center">Applications</h1>
+    <div class="border pt-4 p-5 w-50 align-self-center" style="max-width: 500px">
+        <div class="mb-3">
+            <label for="company" class="form-label">Company</label>
+            <input @bind="company" type="text" class="form-control" id="company"/>
+        </div>
+        <div class="mb-3">
+            <label for="position" class="form-label">Position</label>
+            <input @bind="position" type="text" class="form-control" id="position">
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input @bind="location" type="text" class="form-control" id="location">
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Date Applied</label>
+            <input @bind="date" type="text" class="form-control" id="date">
+        </div>
+        <div class="mb-3">
+            <p>Odds of Contact</p>
+            <button @onclick="likely" type="button" class="btn btn-success">Likely</button>
+            <button @onclick="maybe" type="button" class="btn btn-warning">Maybe</button>
+            <button @onclick="unlikely" type="button" class="btn btn-danger">Unlikely</button>
+        </div>
+        <label class="form-label">Total Applications Submitted: @total</label>
+    </div>
+</div>
+<br/>
+<Added />
+@code{
+    string company;
+    string position;
+    string location;
+    DateTime date;
+    int likelihood;
+    List<Apps> apps;
+    int total;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        apps = await db.GetAppsAsync();
+        foreach (var app in apps)
+        {
+            total += 1;
+        }
+    }
+
+    private void likely()
+    {
+        likelihood = 1;
+        Apps app = new Apps(company, position, location, date, likelihood);
+        db.SaveData(app);
+    }
+    
+    private void maybe()
+    {
+        likelihood = 2;
+        Apps app = new Apps(company, position, location, date, likelihood);
+        db.SaveData(app);
+    }
+    
+    private void unlikely()
+    {
+        likelihood = 3;
+        Apps app = new Apps(company, position, location, date, likelihood);
+        db.SaveData(app);
+    }
+}

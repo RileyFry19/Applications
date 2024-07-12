@@ -1,0 +1,58 @@
+﻿@rendermode InteractiveServer
+@using ApplicationsRiley.Models
+@using ApplicationsRiley.Data
+@inject DBServices db
+
+<div style="display: flex; flex-wrap: wrap;">
+    @if (apps != null && apps.Any())
+    {
+        @foreach (var app in apps)
+        {
+            <div class="card text-white @GetCardClass(app.Likelihood) mb-3" style="max-width: 15rem; margin-right: 10px;">
+                <div class="card-header">@app.Company</div>
+                <div class="card-body">
+                    <p class="card-text">Position: @app.Position</p>
+                    <p class="card-text">Location: @app.Location</p>
+                    <p class="card-text">Date Applied: @app.Date.ToShortDateString()</p>
+                    <p class="card-text">Days Passed: @Math(app.Date)</p>
+                    <button type="button" class="btn btn-dark" @onclick="() => RemoveApp(app.AppId)">Remove</button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No apps available.</p>
+    }
+</div>
+
+@code {
+    List<Apps> apps;
+
+    protected override async Task OnInitializedAsync()
+    {
+        apps = await db.GetAppsAsync();
+    }
+
+    private string GetCardClass(int likelihood)
+    {
+        return likelihood switch
+        {
+            1 => "bg-success",
+            2 => "bg-warning",
+            3 => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private int Math(DateTime date)
+    {
+        TimeSpan difference = DateTime.Now.Date - date.Date;
+        return difference.Days;
+    }
+
+    private void RemoveApp(Guid id)
+    {
+        db.DeleteData(id);
+    }
+}
